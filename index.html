@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PixBatch · 纯本地批量图片处理工具，图片不上传，支持批量缩放、格式转换、压缩与 ZIP 打包下载">
+<title>PixBatch · 本地批量图片处理</title>
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap bar-inner">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">🖼️</span>
+      <div>
+        <h1>PixBatch</h1>
+        <p>本地批量图片处理</p>
+      </div>
+    </div>
+    <div class="privacy">🔒 全程本地处理 · 图片不会上传到任何服务器</div>
+  </div>
+</header>
+
+<main class="wrap layout">
+
+  <aside class="panel settings" id="settings-panel">
+    <h2>添加图片</h2>
+    <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="拖拽或点击选择图片">
+      <p class="dz-main">拖拽图片到这里，或点击选择</p>
+      <p class="dz-sub">支持 JPG / PNG / WebP / GIF / BMP，可多选</p>
+      <input type="file" id="file-input" accept="image/*" multiple hidden>
+    </div>
+
+    <h2>处理设置</h2>
+
+    <fieldset class="field">
+      <legend>输出尺寸</legend>
+      <label class="radio"><input type="radio" name="scale-mode" value="none" checked> 保持原始尺寸</label>
+      <label class="radio"><input type="radio" name="scale-mode" value="width">
+        指定宽度 <input type="number" id="opt-width" value="1280" min="1" max="20000" step="1"> px</label>
+      <label class="radio"><input type="radio" name="scale-mode" value="percent">
+        按比例缩放 <input type="number" id="opt-percent" value="50" min="1" max="500" step="1"> %</label>
+      <p class="hint">高度始终按原始宽高比自动计算</p>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>输出格式与质量</legend>
+      <select id="format" aria-label="输出格式">
+        <option value="jpeg">JPEG（有损 · 兼容性最好）</option>
+        <option value="webp">WebP（有损 · 体积更小）</option>
+        <option value="png">PNG（无损）</option>
+      </select>
+      <div class="quality-row">
+        <label for="quality">质量</label>
+        <input type="range" id="quality" min="10" max="100" step="1" value="80">
+        <output id="quality-val" for="quality">80</output>
+      </div>
+      <p class="hint" id="png-note" hidden>PNG 为无损格式，质量滑球不适用</p>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>批量重命名（前缀 + 序号）</legend>
+      <label class="check"><input type="checkbox" id="rename-toggle"> 启用批量重命名</label>
+      <div id="rename-fields" class="rename-fields" hidden>
+        <label class="inline">前缀 <input type="text" id="prefix" placeholder="如 photo_" maxlength="60"></label>
+        <label class="inline">起始序号 <input type="number" id="start-num" value="1" min="0" max="99999" step="1"></label>
+        <label class="inline">补零位数
+          <select id="pad">
+            <option value="auto">自动</option>
+            <option value="1">1 位</option>
+            <option value="2">2 位</option>
+            <option value="3" selected>3 位</option>
+            <option value="4">4 位</option>
+            <option value="5">5 位</option>
+            <option value="6">6 位</option>
+          </select>
+        </label>
+        <p class="hint">命名预览：<span id="name-preview" class="preview">photo_001.jpg</span></p>
+      </div>
+      <p class="hint">关闭时保留原文件名（仅更换扩展名），重名自动加 -2、-3 后缀</p>
+    </fieldset>
+  </aside>
+
+  <section class="panel queue">
+    <div class="queue-toolbar">
+      <div class="queue-meta">
+        <span id="queue-count">队列 0 张</span>
+        <span id="queue-total" class="muted"></span>
+      </div>
+      <div class="queue-actions">
+        <button id="btn-process" class="btn primary" disabled>⚙ 全部处理</button>
+        <button id="btn-zip" class="btn" disabled>📦 打包下载 ZIP</button>
+        <button id="btn-clear" class="btn ghost" disabled>清空</button>
+      </div>
+    </div>
+
+    <div id="progress" class="progress" hidden>
+      <div class="progress-bar"><i id="progress-fill"></i></div>
+      <span id="progress-text"></span>
+    </div>
+    <p id="settings-hint" class="settings-hint" hidden>⚙ 参数已修改，重新处理后才会应用新设置</p>
+
+    <ul id="list" class="list" aria-live="polite"></ul>
+
+    <div id="empty" class="empty">
+      <p class="dz-main">队列为空</p>
+      <p class="dz-sub">把图片拖进左侧投放区，或点击选择文件</p>
+    </div>
+
+    <div id="summary" class="summary" hidden></div>
+  </section>
+
+</main>
+
+<footer class="wrap footer">
+  纯静态页面 · 零依赖 · 数据不出浏览器 · 可直接双击 index.html 离线使用
+</footer>
+
+<div id="toast-box" aria-live="assertive"></div>
+<noscript><p class="noscript">需要启用 JavaScript 才能使用本工具。</p></noscript>
+
+</body>
+</html>
